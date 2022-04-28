@@ -1,8 +1,73 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model HomeViewModel
 
-<div class="text-center">
+<div class="text-center mb-3">
     <h1 class="display-4">Cascading Dropdown Lists Demo</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+<div class="my-2 col-md-5">
+    <p>
+        Change the left dropdown to see the Cascade in the right dropdown.
+        This can be chained for multiple dropdowns.
+
+    </p>
+</div>
+<form>
+    <div class="row">
+        <div class="col-2 form-group">
+            <select asp-for="SelectedLesson.CourseLevelId" class="form-select" id="courseLevelId"
+                    asp-items="@Model.CourseLevelList">
+            </select>
+        </div>
+        <div class="col-2 form-group">
+            <select asp-for="SelectedLesson.Id" class="form-select" id="lessonId"></select>
+        </div>
+        <div class="mt-2">
+            <div class="col-2 form-group">
+                <button type="button" class="btn btn-primary form-control">Submit</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+<div class="my-2">
+    <p>Check the browser Console to view the server response.</p>
+</div>
+
+@section Scripts
+{
+<script type="text/javascript">
+    $(document).ready(function () {
+        getLessonsListByCourseLevelId();
+    });
+    
+    // Remember to type the selectors correctly in jQuery or it won't work.
+
+    // On each new selection you make in the CourseLevel Dropdown,
+    // the event is invoked
+    $("#courseLevelId").change(function () {
+        getLessonsListByCourseLevelId();
+    });
+
+    // AJAX call to Action for fetching lessons according to CourseLevel ID
+    var getLessonsListByCourseLevelId = function () {
+        $.ajax({
+            // Pass in Query Path by concatenation
+            url: 'lessons/' + $('#courseLevelId').val(),
+            type: 'GET',
+
+            // Note: The data field will pass parameters in the "Query Params", not in "Query Path"
+            //data: {
+            //    levelId: $('#courseLevelId').val()
+            //}
+            success: function (data) {
+                console.log(data);
+
+                // Removing all existing options in dropdown and loading with data from Action
+                $('#lessonId').find('option').remove();
+                $(data).each(function (index, item) {
+                     $('#lessonId').append('<option value="' + item.lessonId + '">' + item.lessonName + '</option>');
+                });
+            }
+        });
+    }
+</script>
+}
